@@ -41,7 +41,7 @@ export NVM_DIR="$HOME/.nvm"
 
 # Oh My Zsh Configuration
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
+ZSH_THEME=""
 plugins=(
   git
   zsh-completions
@@ -49,6 +49,17 @@ plugins=(
   opentofu
   1password
 )
+
+# Pure theme setup
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  fpath+=("$(brew --prefix)/share/zsh/site-functions")
+  autoload -U promptinit && promptinit
+  prompt pure
+elif [[ -d "$HOME/.local/share/zsh/pure" ]]; then
+  fpath+=("$HOME/.local/share/zsh/pure")
+  autoload -U promptinit && promptinit
+  prompt pure
+fi
 
 # Source Oh My Zsh itself
 source "$ZSH/oh-my-zsh.sh"
@@ -80,11 +91,26 @@ fi
 # --- Aliases ---
 alias p="cd ~/Projects"
 
+# Navigation aliases
+alias ..='cd ..'
+alias ...='cd ../..'
+
 # eza (modern ls replacement) aliases
 alias ls='eza --icons'        # ls
 alias ll='eza -l --icons'     # ls -l
 alias la='eza -la --icons'    # ls -la
 alias ltree='eza --tree --level=2 --icons' # tree view
+
+# Git shortcuts
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+
+# System aliases
+alias reload='source ~/.zshrc'
+alias c='clear'
 
 # --- Custom Functions ---
 function lazygit() {
@@ -98,3 +124,10 @@ function lazygit() {
 }
 
 eval "$(atuin init zsh)"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Welcome message
+echo "👋 Welcome back! $(date '+%A, %B %d, %Y')"
+echo "📁 Current directory: $(pwd)"
+echo "🌟 Today's focus: Make it happen!"

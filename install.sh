@@ -67,6 +67,23 @@ install_zsh_and_omz() {
   else
     success "Oh My Zsh is already installed."
   fi
+  info "Installing Pure theme..."
+  if [[ "$OS" == "macos" ]]; then
+    if ! brew list pure &> /dev/null; then
+      $PACKAGE_MANAGER_INSTALL pure
+      success "Pure theme installed."
+    else
+      success "Pure theme is already installed."
+    fi
+  elif [[ "$OS" == "linux" ]]; then
+    if [ ! -d "${HOME}/.local/share/zsh/pure" ]; then
+      mkdir -p "${HOME}/.local/share/zsh"
+      git clone https://github.com/sindresorhus/pure.git "${HOME}/.local/share/zsh/pure"
+      success "Pure theme installed."
+    else
+      success "Pure theme is already installed."
+    fi
+  fi
   info "Installing custom Zsh plugins..."
   local custom_plugins_dir="${HOME}/dotfiles/zsh/custom/plugins"
   mkdir -p "$custom_plugins_dir"
@@ -119,10 +136,12 @@ install_aerospace() {
 
 install_1password() {
   if [[ "$OS" == "macos" ]]; then
-    if ! command -v 1password &> /dev/null; then
+    if ! command -v 1password &> /dev/null || [ ! -d "/Applications/1Password.app" ]; then
       info "Installing 1Password..."
-      brew install --cask 1password
-      success "1Password installed."
+      brew install --cask 1password || {
+        info "1Password installation failed, but it might already be installed. Continuing..."
+      }
+      success "1Password installation completed."
     else
       success "1Password is already installed."
     fi
@@ -256,7 +275,7 @@ setup_symlinks() {
 configure_aerospace() {
   if [[ "$OS" == "macos" ]] && command -v aerospace &> /dev/null; then
     info "Configuring AeroSpace to start at login..."
-    aerospace start-at-login enable
+    aerospace start-at-login
     success "AeroSpace configured to start at login."
   fi
 }
