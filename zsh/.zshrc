@@ -46,6 +46,8 @@ plugins=(
   git
   zsh-completions
   zsh-autosuggestions
+  opentofu
+  1password
 )
 
 # Source Oh My Zsh itself
@@ -78,6 +80,12 @@ fi
 # --- Aliases ---
 alias p="cd ~/Projects"
 
+# eza (modern ls replacement) aliases
+alias ls='eza --icons'        # ls
+alias ll='eza -l --icons'     # ls -l
+alias la='eza -la --icons'    # ls -la
+alias ltree='eza --tree --level=2 --icons' # tree view
+
 # --- Custom Functions ---
 function lazygit() {
     if [ -z "$1" ]; then
@@ -88,3 +96,5 @@ function lazygit() {
     git commit -a -m "$1"
     git push
 }
+
+eval "$(atuin init zsh)"
