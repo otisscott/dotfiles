@@ -64,7 +64,6 @@ detect_os() {
 }
 
 # --- Prerequisite Installation ---
-# --- MODIFIED SECTION ---
 install_dependencies() {
   info "Installing base dependencies..."
 
@@ -76,8 +75,6 @@ install_dependencies() {
     info "Updating Homebrew..."
     $PACKAGE_MANAGER_UPDATE
     info "Installing utilities for macOS..."
-    # 'build-essential' is a Linux package. On macOS, Xcode Command Line Tools
-    # provide the equivalent, which Homebrew handles automatically.
     $PACKAGE_MANAGER_INSTALL git curl
   elif [[ "$OS" == "linux" ]]; then
     info "Updating package lists..."
@@ -87,7 +84,6 @@ install_dependencies() {
   fi
   success "Base dependencies installed."
 }
-# --- END MODIFIED SECTION ---
 
 # --- Tool-Specific Installers ---
 
@@ -172,6 +168,18 @@ install_tmux() {
   fi
 }
 
+# --- NEW FUNCTION ---
+install_fastfetch() {
+  info "Checking for fastfetch..."
+  if ! command -v fastfetch &> /dev/null; then
+    info "Installing fastfetch..."
+    $PACKAGE_MANAGER_INSTALL fastfetch
+  else
+    success "fastfetch is already installed."
+  fi
+}
+# --- END NEW FUNCTION ---
+
 install_ghostty() {
   info "Checking for Ghostty..."
   if ! command -v ghostty &> /dev/null; then
@@ -235,6 +243,7 @@ main() {
   install_bun
   install_uv
   install_tmux
+  install_fastfetch # <-- ADDED CALL
   install_ghostty
   setup_symlinks
 
