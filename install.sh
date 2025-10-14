@@ -64,6 +64,7 @@ detect_os() {
 }
 
 # --- Prerequisite Installation ---
+# --- MODIFIED SECTION ---
 install_dependencies() {
   info "Installing base dependencies..."
 
@@ -74,16 +75,19 @@ install_dependencies() {
     fi
     info "Updating Homebrew..."
     $PACKAGE_MANAGER_UPDATE
-    info "Installing build tools and utilities..."
-    $PACKAGE_MANAGER_INSTALL git curl build-essential
+    info "Installing utilities for macOS..."
+    # 'build-essential' is a Linux package. On macOS, Xcode Command Line Tools
+    # provide the equivalent, which Homebrew handles automatically.
+    $PACKAGE_MANAGER_INSTALL git curl
   elif [[ "$OS" == "linux" ]]; then
     info "Updating package lists..."
     $PACKAGE_MANAGER_UPDATE 2>/dev/null || true
-    info "Installing build tools and utilities..."
+    info "Installing build tools and utilities for Linux..."
     $PACKAGE_MANAGER_INSTALL build-essential git curl file procps
   fi
   success "Base dependencies installed."
 }
+# --- END MODIFIED SECTION ---
 
 # --- Tool-Specific Installers ---
 
@@ -103,13 +107,10 @@ install_zsh_and_omz() {
     success "Oh My Zsh is already installed."
   fi
 
-  # --- MODIFIED SECTION: Install Custom Zsh Plugins ---
   info "Installing custom Zsh plugins..."
-  # This assumes your dotfiles are cloned to ~/dotfiles
   local custom_plugins_dir="${HOME}/dotfiles/zsh/custom/plugins"
   mkdir -p "$custom_plugins_dir"
 
-  # zsh-autosuggestions
   if [ ! -d "${custom_plugins_dir}/zsh-autosuggestions" ]; then
     info "Cloning zsh-autosuggestions..."
     git clone https://github.com/zsh-users/zsh-autosuggestions "${custom_plugins_dir}/zsh-autosuggestions"
@@ -117,7 +118,6 @@ install_zsh_and_omz() {
     success "zsh-autosuggestions already installed."
   fi
 
-  # zsh-completions
   if [ ! -d "${custom_plugins_dir}/zsh-completions" ]; then
     info "Cloning zsh-completions..."
     git clone https://github.com/zsh-users/zsh-completions "${custom_plugins_dir}/zsh-completions"
@@ -179,7 +179,6 @@ install_ghostty() {
     if [[ "$OS" == "macos" ]]; then
       $PACKAGE_MANAGER_INSTALL ghostty
     elif [[ "$OS" == "linux" ]]; then
-      # Download and install the pre-compiled binary for Linux
       GHOSTTY_URL=$(curl -s "https://api.github.com/repos/ghostty-org/ghostty/releases/latest" | grep "browser_download_url.*-linux-x86_64.tar.gz" | cut -d : -f 2,3 | tr -d \")
       curl -LO "$GHOSTTY_URL"
       tar -xzf ghostty-linux-x86_64.tar.gz
@@ -209,7 +208,6 @@ setup_symlinks() {
     ln -s "$src" "$dst"
   }
 
-  # Neovim, Zsh, Git, Tmux
   link "${DOTFILES_DIR}/nvim" "${HOME}/.config/nvim"
   link "${DOTFILES_DIR}/zsh/.zshrc" "${HOME}/.zshrc"
   link "${DOTFILES_DIR}/zsh/custom" "${HOME}/.oh-my-zsh/custom"
@@ -218,9 +216,7 @@ setup_symlinks() {
 
   success "Symbolic links created."
 
-  # --- MODIFIED SECTION: Fix Zsh Permissions ---
   info "Fixing Zsh directory permissions for completion..."
-  # The '|| true' prevents the script from failing if compaudit finds no issues.
   if command -v zsh &> /dev/null; then
     zsh -c "compaudit | xargs chmod g-w,o-w" || true
     success "Zsh permissions fixed."
