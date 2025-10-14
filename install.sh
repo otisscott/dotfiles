@@ -158,17 +158,6 @@ install_uv() {
   fi
 }
 
-install_tmux() {
-  info "Checking for Tmux..."
-  if ! command -v tmux &> /dev/null; then
-    info "Installing Tmux..."
-    $PACKAGE_MANAGER_INSTALL tmux
-  else
-    success "Tmux is already installed."
-  fi
-}
-
-# --- NEW FUNCTION ---
 install_fastfetch() {
   info "Checking for fastfetch..."
   if ! command -v fastfetch &> /dev/null; then
@@ -178,7 +167,6 @@ install_fastfetch() {
     success "fastfetch is already installed."
   fi
 }
-# --- END NEW FUNCTION ---
 
 install_ghostty() {
   info "Checking for Ghostty..."
@@ -196,20 +184,6 @@ install_ghostty() {
     fi
   else
     success "Ghostty is already installed."
-  fi
-}
-
-install_zed() {
-  info "Checking for Zed..."
-  if ! command -v zed &> /dev/null; then
-    info "Installing Zed..."
-    if [[ "$OS" == "macos" ]]; then
-      curl -fsSL https://zed.dev/install.sh | sh
-    elif [[ "$OS" == "linux" ]]; then
-      info "Zed installation for Linux requires manual setup. Please visit https://zed.dev for instructions."
-    fi
-  else
-    success "Zed is already installed."
   fi
 }
 
@@ -234,15 +208,13 @@ setup_symlinks() {
   link "${DOTFILES_DIR}/zsh/.zshrc" "${HOME}/.zshrc"
   link "${DOTFILES_DIR}/zsh/custom" "${HOME}/.oh-my-zsh/custom"
   link "${DOTFILES_DIR}/git/.gitconfig" "${HOME}/.gitconfig"
-  link "${DOTFILES_DIR}/tmux/.tmux.conf" "${HOME}/.tmux.conf"
-  link "${DOTFILES_DIR}/ghostty/config" "${HOME}/.config/ghostty/config"
-  link "${DOTFILES_DIR}/zed/config.json" "${HOME}/.config/zed/config.json"
+  # Add other symlinks for ghostty, zed, etc. here
 
   success "Symbolic links created."
 
   info "Fixing Zsh directory permissions for completion..."
   if command -v zsh &> /dev/null; then
-    zsh -c "compaudit | xargs chmod g-w,o-w" || true
+    zsh -c "autoload -U compinit && compinit; compaudit | xargs chmod g-w,o-w" || true
     success "Zsh permissions fixed."
   fi
 }
@@ -258,14 +230,14 @@ main() {
   install_neovim
   install_bun
   install_uv
-  install_tmux
-  install_fastfetch # <-- ADDED CALL
+  install_fastfetch
   install_ghostty
-  install_zed
   setup_symlinks
 
   success "Dotfiles setup complete!"
-  info "Please restart your terminal or run 'zsh' for changes to take effect."
+  info "To apply all changes, please do one of the following:"
+  echo "  1. (Recommended) Close and restart your terminal."
+  echo "  2. (Quick reload) Run 'exec zsh' to replace your current shell with the new configuration."
 }
 
 # Run the main function
