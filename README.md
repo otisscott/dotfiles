@@ -31,7 +31,7 @@ This script will:
 - Install 1Password with SSH integration
 - Install Ghostty terminal emulator
 - Install development tools: fzf, GitHub CLI, Docker, Maccy
-- Install utility tools: ripgrep, fd, eza, atuin, fastfetch
+- Install utility tools: ripgrep, fd, eza, fastfetch
 - Create symbolic links for all configurations
 - Set up Z.ai API key for Zed (macOS)
 - Add useful aliases and welcome message to shell
@@ -223,7 +223,7 @@ function myfunc() {
 - **ripgrep**: Fast text search (rg)
 - **fd**: Fast file finder
 - **eza**: Modern ls replacement
-- **atuin**: Shell history management
+
 - **fastfetch**: System information display
 - **Bun**: Fast JavaScript runtime and package manager
 - **uv**: Python package and project manager

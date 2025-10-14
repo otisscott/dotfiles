@@ -103,21 +103,39 @@ install_neovim() {
 
 install_bun() { if ! command -v bun &> /dev/null; then info "Installing Bun..."; curl -fsSL https://bun.sh/install | bash; else success "Bun is already installed."; fi; }
 install_uv() { if ! command -v uv &> /dev/null; then info "Installing uv..."; curl -LsSf https://astral.sh/uv/install.sh | sh; else success "uv is already installed."; fi; }
-install_fastfetch() { if ! command -v fastfetch &> /dev/null; then info "Installing fastfetch..."; $PACKAGE_MANAGER_INSTALL fastfetch; else success "fastfetch is already installed."; fi; }
+install_fastfetch() { 
+  if ! command -v fastfetch &> /dev/null; then 
+    info "Installing fastfetch..."
+    if [[ "$OS" == "macos" ]]; then 
+      $PACKAGE_MANAGER_INSTALL fastfetch
+    elif [[ "$OS" == "linux" ]]; then
+      # Add fastfetch PPA repository
+      sudo add-apt-repository ppa:zhangsongcui3371/fastfetch -y
+      sudo apt-get update
+      $PACKAGE_MANAGER_INSTALL fastfetch
+      success "fastfetch installed."
+    fi
+  else
+    success "fastfetch is already installed."
+  fi
+}
 install_ripgrep() { if ! command -v rg &> /dev/null; then info "Installing ripgrep..."; $PACKAGE_MANAGER_INSTALL ripgrep; else success "ripgrep is already installed."; fi; }
-install_fd() { if ! command -v fd &> /dev/null; then info "Installing fd..."; $PACKAGE_MANAGER_INSTALL fd; else success "fd is already installed."; fi; }
+install_fd() { if ! command -v fd &> /dev/null; then info "Installing fd..."; $PACKAGE_MANAGER_INSTALL fd-find; else success "fd is already installed."; fi; }
 install_eza() { if ! command -v eza &> /dev/null; then info "Installing eza..."; $PACKAGE_MANAGER_INSTALL eza; else success "eza is already installed."; fi; }
-install_atuin() { if ! command -v atuin &> /dev/null; then info "Installing atuin..."; $PACKAGE_MANAGER_INSTALL atuin; else success "atuin is already installed."; fi; }
+
 
 install_ghostty() {
   if ! command -v ghostty &> /dev/null; then
     info "Installing Ghostty..."
-    if [[ "$OS" == "macos" ]]; then $PACKAGE_MANAGER_INSTALL ghostty;
-    elif [[ "$OS" == "linux" ]]; then
-      GHOSTTY_URL=$(curl -s "https://api.github.com/repos/ghostty-org/ghostty/releases/latest" | grep "browser_download_url.*-linux-x86_64.tar.gz" | cut -d : -f 2,3 | tr -d \")
-      curl -LO "$GHOSTTY_URL" && tar -xzf ghostty-linux-x86_64.tar.gz && sudo mv ghostty /usr/local/bin/
-      /usr/local/bin/ghostty --install-desktop-files && rm ghostty-linux-x86_64.tar.gz; fi
-  else success "Ghostty is already installed."; fi
+    if [[ "$OS" == "macos" ]]; then 
+      $PACKAGE_MANAGER_INSTALL ghostty;
+      success "Ghostty installed."
+    else
+      info "Ghostty is macOS-only, skipping installation."
+    fi
+  else
+    success "Ghostty is already installed."
+  fi
 }
 
 install_aerospace() {
@@ -452,7 +470,6 @@ main() {
   install_ripgrep
   install_fd
   install_eza
-  install_atuin
   setup_symlinks
   configure_macos
   configure_aerospace

@@ -126,7 +126,7 @@ function lazygit() {
     git push
 }
 
-eval "$(atuin init zsh)"
+
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
@@ -134,3 +134,6 @@ eval "$(atuin init zsh)"
 echo "👋 Welcome back! $(date '+%A, %B %d, %Y')"
 echo "📁 Current directory: $(pwd)"
 echo "🌟 Today's focus: Make it happen!"
+
+# Add local bin to PATH
+export PATH="/home/otisscott/bin:$PATH"
