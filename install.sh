@@ -225,6 +225,20 @@ install_clipboard() {
   fi
 }
 
+install_raycast() {
+  if [[ "$OS" == "macos" ]]; then
+    if [ ! -d "/Applications/Raycast.app" ]; then
+      info "Installing Raycast..."
+      brew install --cask raycast
+      success "Raycast installed."
+    else
+      success "Raycast is already installed."
+    fi
+  else
+    info "Raycast is macOS-only, skipping installation."
+  fi
+}
+
 # --- OS Specific Configurations ---
 configure_macos() {
   if [[ "$OS" == "macos" ]]; then
@@ -434,6 +448,7 @@ main() {
   install_gh
   install_docker
   install_clipboard
+  install_raycast
   install_ripgrep
   install_fd
   install_eza
@@ -476,10 +491,15 @@ main() {
     info "GitHub CLI is installed! Run 'gh auth login' to authenticate"
   fi
   
-  if [[ "$OS" == "macos" ]] && command -v maccy &> /dev/null; then
-    echo ""
-    info "Maccy (clipboard manager) is installed! Use Cmd+Shift+C to open"
-  fi
+   if [[ "$OS" == "macos" ]] && command -v maccy &> /dev/null; then
+     echo ""
+     info "Maccy (clipboard manager) is installed! Use Cmd+Shift+C to open"
+   fi
+   
+   if [[ "$OS" == "macos" ]] && [ -d "/Applications/Raycast.app" ]; then
+     echo ""
+     info "Raycast is installed! Use Cmd+Space to open and create custom commands"
+   fi
   
   echo ""
   info "New aliases available:"
