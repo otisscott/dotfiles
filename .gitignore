@@ -55,3 +55,5 @@ zsdoc/data
 # Zunit tests' output
 /tests/_output/*
 !/tests/_output/.gitkeep
+
+.DS_STORE
