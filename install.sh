@@ -102,6 +102,28 @@ install_zsh_and_omz() {
   else
     success "Oh My Zsh is already installed."
   fi
+
+  # --- MODIFIED SECTION: Install Custom Zsh Plugins ---
+  info "Installing custom Zsh plugins..."
+  # This assumes your dotfiles are cloned to ~/dotfiles
+  local custom_plugins_dir="${HOME}/dotfiles/zsh/custom/plugins"
+  mkdir -p "$custom_plugins_dir"
+
+  # zsh-autosuggestions
+  if [ ! -d "${custom_plugins_dir}/zsh-autosuggestions" ]; then
+    info "Cloning zsh-autosuggestions..."
+    git clone https://github.com/zsh-users/zsh-autosuggestions "${custom_plugins_dir}/zsh-autosuggestions"
+  else
+    success "zsh-autosuggestions already installed."
+  fi
+
+  # zsh-completions
+  if [ ! -d "${custom_plugins_dir}/zsh-completions" ]; then
+    info "Cloning zsh-completions..."
+    git clone https://github.com/zsh-users/zsh-completions "${custom_plugins_dir}/zsh-completions"
+  else
+    success "zsh-completions already installed."
+  fi
 }
 
 install_neovim() {
@@ -111,7 +133,6 @@ install_neovim() {
     if [[ "$OS" == "macos" ]]; then
       $PACKAGE_MANAGER_INSTALL neovim
     elif [[ "$OS" == "linux" ]]; then
-      # Use the AppImage for the latest version on Linux
       curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
       chmod u+x nvim.appimage
       sudo mv nvim.appimage /usr/local/bin/nvim
@@ -158,61 +179,56 @@ install_ghostty() {
     if [[ "$OS" == "macos" ]]; then
       $PACKAGE_MANAGER_INSTALL ghostty
     elif [[ "$OS" == "linux" ]]; then
-      info "Ghostty is typically used on macOS. For Linux/WSL2, you can use Wezterm or other terminals."
+      # Download and install the pre-compiled binary for Linux
+      GHOSTTY_URL=$(curl -s "https://api.github.com/repos/ghostty-org/ghostty/releases/latest" | grep "browser_download_url.*-linux-x86_64.tar.gz" | cut -d : -f 2,3 | tr -d \")
+      curl -LO "$GHOSTTY_URL"
+      tar -xzf ghostty-linux-x86_64.tar.gz
+      sudo mv ghostty /usr/local/bin/
+      /usr/local/bin/ghostty --install-desktop-files
+      rm ghostty-linux-x86_64.tar.gz
     fi
   else
     success "Ghostty is already installed."
   fi
 }
 
-
-
-
-
 # --- Symbolic Link Setup ---
 setup_symlinks() {
   info "Setting up symbolic links for configurations..."
-  # Get the absolute path of the dotfiles directory
   DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-  # Helper for creating symlinks
   link() {
     local src=$1
     local dst=$2
-    # Create parent directory if it doesn't exist
     mkdir -p "$(dirname "$dst")"
-    # Back up existing file/directory
     if [ -e "$dst" ] || [ -L "$dst" ]; then
       info "Backing up existing config at $dst"
-      mv "$dst" "$dst.bak"
+      mv "$dst" "$dst.bak" 2>/dev/null || true
     fi
     info "Linking $src to $dst"
     ln -s "$src" "$dst"
   }
 
-  # Neovim
+  # Neovim, Zsh, Git, Tmux
   link "${DOTFILES_DIR}/nvim" "${HOME}/.config/nvim"
-
-  # Zsh and Oh My Zsh
   link "${DOTFILES_DIR}/zsh/.zshrc" "${HOME}/.zshrc"
   link "${DOTFILES_DIR}/zsh/custom" "${HOME}/.oh-my-zsh/custom"
-
-  # Git
   link "${DOTFILES_DIR}/git/.gitconfig" "${HOME}/.gitconfig"
-
-  # Tmux
   link "${DOTFILES_DIR}/tmux/.tmux.conf" "${HOME}/.tmux.conf"
 
-  
-
-  
-
   success "Symbolic links created."
+
+  # --- MODIFIED SECTION: Fix Zsh Permissions ---
+  info "Fixing Zsh directory permissions for completion..."
+  # The '|| true' prevents the script from failing if compaudit finds no issues.
+  if command -v zsh &> /dev/null; then
+    zsh -c "compaudit | xargs chmod g-w,o-w" || true
+    success "Zsh permissions fixed."
+  fi
 }
 
 # --- Main Execution ---
 main() {
-  # Ask for the administrator password upfront
   info "Sudo password may be required for installation."
   sudo -v
 
@@ -228,8 +244,6 @@ main() {
 
   success "Dotfiles setup complete!"
   info "Please restart your terminal or run 'zsh' for changes to take effect."
-  info "You may need to run ':Lazy sync' the first time you open Neovim."
-  info "Run 'tmux' to start a new tmux session."
 }
 
 # Run the main function
