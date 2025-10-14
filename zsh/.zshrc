@@ -61,6 +61,9 @@ elif [[ -d "$HOME/.local/share/zsh/pure" ]]; then
   prompt pure
 fi
 
+# Pure theme git branch color
+zstyle :prompt:pure:git:branch color cyan
+
 # Source Oh My Zsh itself
 source "$ZSH/oh-my-zsh.sh"
 
