@@ -1,0 +1,47 @@
+{
+  "theme": "Catppuccin Mocha",
+  "ui": {
+    "font_size": 14,
+    "font_family": "JetBrainsMono Nerd Font",
+    "line_height": 1.5
+  },
+  "editor": {
+    "soft_wrap": "editor_width",
+    "tab_size": 2,
+    "insert_spaces": true,
+    "auto_indent": true,
+    "rulers": [80],
+    "cursor_blink": true
+  },
+  "terminal": {
+    "font_size": 14,
+    "font_family": "JetBrainsMono Nerd Font",
+    "working_directory": "current"
+  },
+  "languages": {
+    "javascript": {
+      "formatter": "prettier",
+      "prettier": {
+        "singleQuote": true,
+        "trailingComma": "es5"
+      }
+    },
+    "typescript": {
+      "formatter": "prettier",
+      "prettier": {
+        "singleQuote": true,
+        "trailingComma": "es5"
+      }
+    },
+    "json": {
+      "formatter": "prettier"
+    },
+    "markdown": {
+      "formatter": "prettier"
+    }
+  },
+  "features": {
+    "copilot": true,
+    "lsp": true
+  }
+}

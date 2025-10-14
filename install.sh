@@ -199,6 +199,20 @@ install_ghostty() {
   fi
 }
 
+install_zed() {
+  info "Checking for Zed..."
+  if ! command -v zed &> /dev/null; then
+    info "Installing Zed..."
+    if [[ "$OS" == "macos" ]]; then
+      curl -fsSL https://zed.dev/install.sh | sh
+    elif [[ "$OS" == "linux" ]]; then
+      info "Zed installation for Linux requires manual setup. Please visit https://zed.dev for instructions."
+    fi
+  else
+    success "Zed is already installed."
+  fi
+}
+
 # --- Symbolic Link Setup ---
 setup_symlinks() {
   info "Setting up symbolic links for configurations..."
@@ -221,6 +235,8 @@ setup_symlinks() {
   link "${DOTFILES_DIR}/zsh/custom" "${HOME}/.oh-my-zsh/custom"
   link "${DOTFILES_DIR}/git/.gitconfig" "${HOME}/.gitconfig"
   link "${DOTFILES_DIR}/tmux/.tmux.conf" "${HOME}/.tmux.conf"
+  link "${DOTFILES_DIR}/ghostty/config" "${HOME}/.config/ghostty/config"
+  link "${DOTFILES_DIR}/zed/config.json" "${HOME}/.config/zed/config.json"
 
   success "Symbolic links created."
 
@@ -245,6 +261,7 @@ main() {
   install_tmux
   install_fastfetch # <-- ADDED CALL
   install_ghostty
+  install_zed
   setup_symlinks
 
   success "Dotfiles setup complete!"
