@@ -1,0 +1,22 @@
+[user]
+	name = Your Name
+	email = your.email@example.com
+[init]
+	defaultBranch = main
+[core]
+	editor = nvim
+[pull]
+	rebase = true
+[push]
+	default = simple
+[alias]
+	st = status
+	br = branch
+	co = checkout
+	cb = checkout -b
+	lg = log --oneline --graph --decorate --all
+	lga = log --oneline --graph --decorate --all --all
+[github]
+	user = YourGitHubUsername
+[credential]
+	helper = store

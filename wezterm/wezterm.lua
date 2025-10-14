@@ -1,0 +1,167 @@
+-- ~/.config/wezterm/wezterm.lua
+-- The main configuration file with macOS-style keybindings
+
+-- Pull in the wezterm API and the custom appearance module
+local wezterm = require 'wezterm'
+local appearance = require 'appearance'
+
+-- Initialize the configuration object
+local config = {}
+if wezterm.config_builder then
+  config = wezterm.config_builder()
+end
+
+-----------------------------------------------------
+-- LAUNCHER / SHELL
+-----------------------------------------------------
+-- Set the default program to launch WSL in the home directory
+config.default_prog = { 'wsl.exe', '--cd', '~' }
+
+-----------------------------------------------------
+-- APPEARANCE & THEME
+-----------------------------------------------------
+-- Dynamically set the color scheme based on OS light/dark mode
+if appearance.is_dark() then
+  config.color_scheme = 'Tokyo Night'
+else
+  config.color_scheme = 'Tokyo Night Day'
+end
+
+-- Font Configuration
+config.font = wezterm.font 'Typestar OCR'
+
+-- Window Styling
+config.window_background_opacity = 0.9
+config.window_decorations = 'RESIZE'
+
+-- Tab Bar / Window Frame Styling
+config.window_frame = {
+  font = wezterm.font { family = 'Typestar OCR', weight = 'Bold' },
+  font_size = 11.0,
+}
+
+-----------------------------------------------------
+-- KEYBINDINGS (macOS Style)
+-----------------------------------------------------
+config.keys = {
+  -- Window Management
+  { key = 'n', mods = 'CTRL', action = wezterm.action.SpawnWindow },
+  { key = 'w', mods = 'CTRL|SHIFT', action = wezterm.action.CloseCurrentPane { confirm = true } },
+  { key = 'Enter', mods = 'CTRL', action = wezterm.action.ToggleFullScreen },
+  { key = 'q', mods = 'CTRL', action = wezterm.action.QuitApplication },
+
+  -- Tab Management
+  -- This will correctly open new tabs in the CWD of the current tab.
+  { key = 't', mods = 'CTRL', action = wezterm.action.SpawnTab 'CurrentPaneDomain' },
+  { key = 'w', mods = 'CTRL', action = wezterm.action.CloseCurrentTab { confirm = true } },
+  { key = '[', mods = 'CTRL|SHIFT', action = wezterm.action.ActivateTabRelative(-1) },
+  { key = ']', mods = 'CTRL|SHIFT', action = wezterm.action.ActivateTabRelative(1) },
+  { key = '9', mods = 'CTRL', action = wezterm.action.ActivateTab(-1) },
+
+  -- Pane (Split) Management -- This is the simple, correct way.
+  -- 'CurrentPaneDomain' tells wezterm to inherit everything, including CWD.
+  { key = 'd', mods = 'CTRL', action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+  { key = 'd', mods = 'CTRL|SHIFT', action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' } },
+  {
+    key = 'd',
+    mods = 'CTRL|ALT',
+    action = wezterm.action_callback(function(window, pane)
+      -- Get the current working directory to ensure new panes open in the right place
+      local cwd = pane:get_current_working_dir()
+
+      -- Perform a sequence of actions
+      window:perform_action(wezterm.action.Multiple {
+        -- 1. Split the current pane horizontally. The new bottom pane becomes active.
+        wezterm.action.SplitHorizontal { cwd = cwd },
+        -- 2. Split the now-active bottom pane vertically. The new bottom-right pane becomes active.
+        wezterm.action.SplitVertical { cwd = cwd },
+        -- 3. From the bottom-right pane, move focus to the pane on its left.
+        wezterm.action.ActivatePaneDirection 'Left',
+      }, pane)
+    end),
+  },
+
+  -- Pane Navigation
+  { key = 'UpArrow', mods = 'CTRL|ALT', action = wezterm.action.ActivatePaneDirection 'Up' },
+  { key = 'DownArrow', mods = 'CTRL|ALT', action = wezterm.action.ActivatePaneDirection 'Down' },
+  { key = 'LeftArrow', mods = 'CTRL|ALT', action = wezterm.action.ActivatePaneDirection 'Left' },
+  { key = 'RightArrow', mods = 'CTRL|ALT', action = wezterm.action.ActivatePaneDirection 'Right' },
+  { key = 'Enter', mods = 'CTRL|SHIFT', action = wezterm.action.TogglePaneZoomState },
+
+  -- Pane Resizing
+  { key = 'UpArrow', mods = 'SUPER|CTRL', action = wezterm.action.AdjustPaneSize { 'Up', 3 } },
+  { key = 'DownArrow', mods = 'SUPER|CTRL', action = wezterm.action.AdjustPaneSize { 'Down', 3 } },
+  { key = 'LeftArrow', mods = 'SUPER|CTRL', action = wezterm.action.AdjustPaneSize { 'Left', 3 } },
+  { key = 'RightArrow', mods = 'SUPER|CTRL', action = wezterm.action.AdjustPaneSize { 'Right', 3 } },
+
+  -- Copy & Paste
+  { key = 'c', mods = 'CTRL|SHIFT', action = wezterm.action.CopyTo 'Clipboard' },
+  { key = 'v', mods = 'CTRL', action = wezterm.action.PasteFrom 'Clipboard' },
+
+  -- Font Size
+  { key = '=', mods = 'CTRL', action = wezterm.action.IncreaseFontSize },
+  { key = '-', mods = 'CTRL', action = wezterm.action.DecreaseFontSize },
+  { key = '0', mods = 'CTRL', action = wezterm.action.ResetFontSize },
+
+  -- Clear Screen
+  { key = 'k', mods = 'CTRL', action = wezterm.action.ClearScrollback 'ScrollbackAndViewport' },
+
+  -- Configuration
+  { key = ',', mods = 'CTRL', action = wezterm.action.SpawnCommandInNewTab { args = { 'nvim', wezterm.config_dir .. '/wezterm.lua' } } },
+  { key = ',', mods = 'CTRL|SHIFT', action = wezterm.action.ReloadConfiguration },
+  { key = 'L', mods = 'CTRL|SHIFT', action = wezterm.action.ShowDebugOverlay },
+}
+
+-- Loop to create bindings for CTRL + 1-8 to switch tabs
+for i = 1, 8 do
+  table.insert(config.keys, { key = tostring(i), mods = 'CTRL', action = wezterm.action.ActivateTab(i - 1) })
+end
+-----------------------------------------------------
+-- LAUNCHER MENU FOR PROJECTS
+-----------------------------------------------------
+config.launch_menu = {
+  {
+    label = 'Lwin Mapping',
+    args = { 'wsl.exe', '--cd', '~/Projects/lwin-mapping' },
+  },
+  {
+    label = 'Cellar OS',
+    args = { 'wsl.exe', '--cd', '~/Projects/cellar-os' },
+  },
+  {
+    label = 'My Wine Cellar',
+    args = { 'wsl.exe', '--cd', '~/Projects/my-wine-cellar' },
+  },
+}
+
+-----------------------------------------------------
+-- STATUS BAR
+-----------------------------------------------------
+local function segments_for_right_status(window)
+  return { window:active_workspace(), wezterm.strftime('%a %b %-d %H:%M'), wezterm.hostname() }
+end
+
+wezterm.on('update-status', function(window, _)
+  local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
+  local segments = segments_for_right_status(window)
+  local color_scheme = window:effective_config().resolved_palette
+  local bg = wezterm.color.parse(color_scheme.background)
+  local fg = color_scheme.foreground
+  local gradient_to, gradient_from = bg
+  if appearance.is_dark() then gradient_from = gradient_to:lighten(0.2) else gradient_from = gradient_to:darken(0.2) end
+  local gradient = wezterm.color.gradient({ orientation = 'Horizontal', colors = { gradient_from, gradient_to } }, #segments)
+  local elements = {}
+  for i, seg in ipairs(segments) do
+    local is_first = i == 1
+    if is_first then table.insert(elements, { Background = { Color = 'none' } }) end
+    table.insert(elements, { Foreground = { Color = gradient[i] } })
+    table.insert(elements, { Text = SOLID_LEFT_ARROW })
+    table.insert(elements, { Foreground = { Color = fg } })
+    table.insert(elements, { Background = { Color = gradient[i] } })
+    table.insert(elements, { Text = ' ' .. seg .. ' ' })
+  end
+  window:set_right_status(wezterm.format(elements))
+end)
+
+-- Finally, return the configuration table
+return config
