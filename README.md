@@ -84,8 +84,8 @@ dotfiles/
 
 ### Zsh
 
-- **Theme**: robbyrussell
-- **Plugins**: git, zsh-completions, zsh-autosuggestions
+- **Theme**: Pure
+- **Plugins**: git, zsh-completions, zsh-autosuggestions, opentofu, 1password
 - **Aliases**: Navigation (`..`, `...`), Git shortcuts (`gs`, `ga`, `gc`, `gp`, `gl`), System (`reload`, `clear`)
 - **Enhanced listings**: `ll` and `la` with eza and git info
 - **Welcome message**: Motivational startup message with date
@@ -112,7 +112,7 @@ dotfiles/
 
 ### AeroSpace (macOS)
 
-- **Window Management**: Tiling window manager with vim-style navigation
+- **Window Management**: Tiling window manager with i3-style navigation
 - **Keybindings**: Alt+HJKL for navigation, Alt+1-9,A-Z for workspaces
 - **App Rules**: Floating for system apps, tiling for development tools
 - **Integration**: Ghostty terminal launcher with Alt+Enter
@@ -198,7 +198,6 @@ function myfunc() {
 - macOS 10.14+ or Linux (Ubuntu/Debian/Arch/Fedora)
 - Git
 - curl
-- build-essential (Linux) or Xcode Command Line Tools (macOS)
 
 ## Tools Installed
 
