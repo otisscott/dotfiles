@@ -87,8 +87,18 @@ install_zsh_and_omz() {
   info "Installing custom Zsh plugins..."
   local custom_plugins_dir="${HOME}/dotfiles/zsh/custom/plugins"
   mkdir -p "$custom_plugins_dir"
-  if [ ! -d "${custom_plugins_dir}/zsh-autosuggestions" ]; then git clone https://github.com/zsh-users/zsh-autosuggestions "${custom_plugins_dir}/zsh-autosuggestions"; else success "zsh-autosuggestions already installed."; fi
-  if [ ! -d "${custom_plugins_dir}/zsh-completions" ]; then git clone https://github.com/zsh-users/zsh-completions "${custom_plugins_dir}/zsh-completions"; else success "zsh-completions already installed."; fi
+  if [ ! -d "${custom_plugins_dir}/zsh-autosuggestions" ]; then 
+    git clone https://github.com/zsh-users/zsh-autosuggestions "${custom_plugins_dir}/zsh-autosuggestions"
+    success "zsh-autosuggestions installed to dotfiles."
+  else 
+    success "zsh-autosuggestions already installed in dotfiles."
+  fi
+  if [ ! -d "${custom_plugins_dir}/zsh-completions" ]; then 
+    git clone https://github.com/zsh-users/zsh-completions "${custom_plugins_dir}/zsh-completions"
+    success "zsh-completions installed to dotfiles."
+  else 
+    success "zsh-completions already installed in dotfiles."
+  fi
 }
 
 install_neovim() {
@@ -292,7 +302,14 @@ setup_symlinks() {
   }
   link "${DOTFILES_DIR}/nvim" "${HOME}/.config/nvim"
   link "${DOTFILES_DIR}/zsh/.zshrc" "${HOME}/.zshrc"
-  link "${DOTFILES_DIR}/zsh/custom" "${HOME}/.oh-my-zsh/custom"
+  # Link custom Zsh plugins directory to Oh My Zsh
+  if [ -d "${HOME}/.oh-my-zsh" ]; then
+    # Remove existing custom directory if it's not a symlink
+    if [ -d "${HOME}/.oh-my-zsh/custom" ] && [ ! -L "${HOME}/.oh-my-zsh/custom" ]; then
+      rm -rf "${HOME}/.oh-my-zsh/custom"
+    fi
+    link "${DOTFILES_DIR}/zsh/custom" "${HOME}/.oh-my-zsh/custom"
+  fi
   link "${DOTFILES_DIR}/git/.gitconfig" "${HOME}/.gitconfig"
   link "${DOTFILES_DIR}/aerospace/.aerospace.toml" "${HOME}/.aerospace.toml"
   success "Symbolic links created."
